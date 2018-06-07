@@ -31,7 +31,7 @@ function [metrics clique_adj clique_array] = persistent_conductance(A,Ci,varargi
     max_edge = edge_range(2);     
     thresholds = fliplr(round(linspace(min_edge,max_edge,50),2));
     
-    loaddata = false;
+    loaddata = true;
     use_clique_top = true;
     k_motifs = 15; % starts from 2 to k_motifs+1
     n_nodes = length(A);
@@ -44,11 +44,11 @@ function [metrics clique_adj clique_array] = persistent_conductance(A,Ci,varargi
     mstree = zeros(length(thresholds),n_nodes);
     components = zeros(length(thresholds),n_nodes,10);
     betti = zeros(length(thresholds),2);
-    births = zeros(length(thresholds),k_motifs,n_nodes,n_nodes);
+    barcodes = zeros(n_nodes,k_motifs,2);
     
     A = (A + A')/2;
     for th_no=1:length(thresholds)
-        th_no
+
         if(loaddata)
             load('tmp/persistant_conductance', ...
               'clique_array','clique_adj');
@@ -90,6 +90,7 @@ function [metrics clique_adj clique_array] = persistent_conductance(A,Ci,varargi
                 end
             end
         end
+        
         tmp_A = (clique_adj{th_no}(:,:,1).*(A));
         %tmp_mst = mst(tmp_A);
         [H T] = dendrogram(linkage(tmp_A));
@@ -105,6 +106,7 @@ function [metrics clique_adj clique_array] = persistent_conductance(A,Ci,varargi
                                  - n_nodes + betti(th_no,1); 
     end
     
+    [barcodes] = barcode_cliques(clique_array,k_motifs);
 
     metrics = {};
     metrics.conductances = conductances;
@@ -112,6 +114,8 @@ function [metrics clique_adj clique_array] = persistent_conductance(A,Ci,varargi
     metrics.volume = volume;
     metrics.mstree = mstree;
     metrics.betti = betti; 
+    metrics.barcodes = barcodes;
+    
     
     if(~exist('tmp'))
         mkdir('tmp');
@@ -121,6 +125,36 @@ function [metrics clique_adj clique_array] = persistent_conductance(A,Ci,varargi
       'metrics','clique_array','clique_adj','k_motifs','A','Ci');    
     
 end
+
+
+function [barcodes clique_expanded] = barcode_cliques(cliques,n_motifs)
+
+    n_thresh = length(cliques);
+    [~,n_nodes] = size(cliques{1});
+    clique_expanded = zeros(n_thresh,n_nodes,n_motifs);
+    barcodes = zeros(n_nodes,n_motifs,2);
+
+    for ii=1:n_thresh
+        clique_sz = sum(cliques{ii},2); 
+        for kk=1:max(clique_sz)
+            clique_expanded(ii,:,kk) = sum(cliques{ii}(clique_sz==kk,:),1);
+        end
+        clique_expanded(ii,:,kk) = clique_expanded(ii,:,kk)/sum(clique_sz==kk);
+    end
+    
+    for ii=1:n_nodes
+        for jj=1:n_motifs
+            if(any(clique_expanded(:,ii,jj)))
+                barcodes(ii,jj,1) = ...
+                     find(squeeze(clique_expanded(:,ii,jj)),1,'first');
+                barcodes(ii,jj,2) = ...
+                      find(squeeze(clique_expanded(:,ii,jj)),1,'last');
+            end
+        end
+    end
+    
+end
+
 
 function opts = create_options(varargin)
     
