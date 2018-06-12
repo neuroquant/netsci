@@ -6,6 +6,9 @@ function [metrics clique_adj clique_array] = persistent_conductance(A,Ci,varargi
     % INPUT
     %   A  - A weighted or binary adjacency matrix of p x p nodes
     %   Ci - A p x 1 vector of community partition labels for each node
+    %   (optional)
+    %   loaddata -  false (default); % Flag to plot results from tmp cache. 
+    %   savefilename - Filename to save results, cached at 'tmp/<filename>'
     % 
     % OUTPUT
     %
@@ -39,7 +42,18 @@ function [metrics clique_adj clique_array] = persistent_conductance(A,Ci,varargi
     max_edge = edge_range(2);     
     thresholds = fliplr(round(linspace(min_edge,max_edge,50),2));
     
-    loaddata = true;
+    switch nargin 
+    case 3
+        loaddata = varargin{1};
+        savefilename = 'persistent_conductance';
+    case 4
+        loaddata = varargin{1};
+        savefilename = varargin{2};
+    otherwise
+        loaddata = false;
+        savefilename = 'persistent_conductance';
+    end
+    
     use_clique_top = true;
     k_motifs = 15; % starts from 2 to k_motifs+1
     n_nodes = length(A);
@@ -57,7 +71,8 @@ function [metrics clique_adj clique_array] = persistent_conductance(A,Ci,varargi
     A = (A + A')/2;
     for th_no=1:length(thresholds)
 
-        if(loaddata)
+        if(loaddata && exist(fullfile('tmp',savefilename)))
+            disp('Loading Cached Results')
             load('tmp/persistant_conductance', ...
               'clique_array','clique_adj');
         else 
@@ -133,7 +148,7 @@ function [metrics clique_adj clique_array] = persistent_conductance(A,Ci,varargi
         mkdir('tmp');
     end
     
-    save('tmp/persistant_conductance', ...
+    save(fullfile('tmp',savefilename), ...
       'metrics','clique_array','clique_adj','k_motifs','A','Ci');    
     
 end

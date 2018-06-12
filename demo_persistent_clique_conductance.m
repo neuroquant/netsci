@@ -17,7 +17,8 @@ function demo_persistent_clique_conductance()
     warning on;
     
 
-    [metrics clique_adj cliques] = tda.persistent_conductance(A,Ci);
+    [metrics clique_adj cliques] = ...
+         tda.persistent_conductance(A,Ci,false,'persistent_conductance');
     
     % Plot DMN-Other Communities Conductance
     create_matrix_movie(squeeze(metrics.conductances(:,:,:,7)), ...
