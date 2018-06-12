@@ -23,7 +23,7 @@ function [metrics clique_adj clique_array] = persistent_conductance(A,Ci,varargi
     % Right now the range of thresholds used are the 75% to 99% percentiles of the strongest edges. This seems to be a reasonable range both computationally for clique computations (whcih can become very slow in dense graphs) as well as where there is natural variation in biological networks like functional connectivity
     % 
     % EXAMPLE
-    % - 
+    % demo_persistent_clique_condutance()
     % 
     % 
     % 

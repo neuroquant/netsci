@@ -19,11 +19,10 @@ function demo_persistent_clique_conductance()
 
     [metrics clique_adj cliques] = tda.persistent_conductance(A,Ci);
     
-    % Plot DMN Conductance
-    
+    % Plot DMN-Other Communities Conductance
     create_matrix_movie(squeeze(metrics.conductances(:,:,:,7)), ...
                         '~/Downloads/HCP1200_DMN_Conductances'); 
-                        
+
     create_matrix_movie(squeeze(metrics.conductances(:,:,1:6,6)), ...
                              '~/Downloads/HCP1200_FPN_Conductances'); 
     
