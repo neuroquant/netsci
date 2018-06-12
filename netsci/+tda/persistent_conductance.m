@@ -10,16 +10,24 @@ function [metrics clique_adj clique_array] = persistent_conductance(A,Ci,varargi
     % OUTPUT
     %
     % metrics
-    %   metrics.conductances 
-    %   metrics.degree
+    %   metrics.conductances - n_thresholds x n_motifs x n_community x n_community of within and between community conductance based on the clique_adjacencies
+    % 
+    %   metrics.degree - n_thresholds x n_motifs x n_rois of degree strength based on the clique adjacencies
+    %   This function creates many other experimental outputs. 
     % 
     % clique_adj - each cell in array contains node x node x clique_size adjacency
     %
     % cliques   - each cell in array contains cliques x node members
+    % 
+    % Notes: 
+    % Right now the range of thresholds used are the 75% to 99% percentiles of the strongest edges. This seems to be a reasonable range both computationally for clique computations (whcih can become very slow in dense graphs) as well as where there is natural variation in biological networks like functional connectivity
+    % 
+    % EXAMPLE
+    % 
+    % 
+    % 
+    % 
     import +community.*
-    
-    addpath('~/MATLAB/netsci/external/k_clique');
-    addpath('~/MATLAB/packages/matlab-bgl');
     
     %% For stability graphs
     % thresholds = fliplr(round(linspace(.5,.8,20),2));
@@ -115,6 +123,10 @@ function [metrics clique_adj clique_array] = persistent_conductance(A,Ci,varargi
     metrics.mstree = mstree;
     metrics.betti = betti; 
     metrics.barcodes = barcodes;
+    metrics.x_thresholds = thresholds;
+    metrics.y_cliques = 2:(k_motifs+1);
+    metrics.xlabel = 'Filtration (Thresholds)'; 
+    metrics.ylabel = 'Clique/Motif Size';
     
     
     if(~exist('tmp'))
