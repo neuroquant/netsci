@@ -96,10 +96,25 @@ classdef cuts
         end
     
         function clique_mat = clique_top(A,thresh,varargin)
-            
+            % clique_top(A, threshold)
+            % 
+            % clique_top(A, threshold, clique_sz)
+            %  where clique_sz = [min_clique_sz max_clique_sz];
+            % 
             find_max_cliques = true;
-            min_clique = 2;
-            max_clique = 20;
+            
+            switch nargin 
+            case 2
+                min_clique = 2;
+                max_clique = 15;
+            case 3
+                clique_sz = varargin{1};
+                min_clique = clique_sz(1);
+                max_clique = clique_sz(2);
+            otherwise
+                min_clique = 2;
+                max_clique = 15;
+            end
             
             [~, clique_mat] = ...
                  Cliquer.FindAll(1.0*(abs(A)>=thresh),...
@@ -115,7 +130,7 @@ classdef cuts
     
         function clique_array = get_cliques(A,thresh)
         
-           tmpdir = fullfile('~/MATLAB/continuity_netsci','tmp')
+           tmpdir = fullfile(pwd,'tmp')
            unix(['mkdir -p ' tmpdir]);
            
            G =  graph((abs(A)>=thresh));
@@ -139,7 +154,7 @@ classdef cuts
                  ... %'-l ~/MATLAB/netsci/external/CFinder-v2.0.6/ ' ...
                  '-i ~/MATLAB/continuity_netsci/tmp/tmp_edgelist.txt ' ...
                  '-o ~/MATLAB/continuity_netsci/tmp/tmp_edgelist ']);
-            end
+           end
            unix(clique_cmd);
            cd(currdir)
            % Read CFinder Results

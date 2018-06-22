@@ -2,7 +2,7 @@ function [metrics clique_adj clique_array] = persistent_conductance(A,Ci,varargi
     % Conductance between source and target communities s,t using clique adjacency information
     % 
     % USAGE
-    %   [metrics clique_adj cliques] = persistent_conductance(Sig,Ci)
+    %   [metrics clique_adj cliques] = tda.persistent_conductance(Sig,Ci)
     % INPUT
     %   A  - A weighted or binary adjacency matrix of p x p nodes
     %   Ci - A p x 1 vector of community partition labels for each node
@@ -37,10 +37,17 @@ function [metrics clique_adj clique_array] = persistent_conductance(A,Ci,varargi
     % For (-1,1) similarity or correlations
     
     edges = A(find(triu(A,1)));
-    edge_range = prctile(abs(edges),[75 99]);
-    min_edge = edge_range(1); 
-    max_edge = edge_range(2);     
-    thresholds = fliplr(round(linspace(min_edge,max_edge,50),2));
+    if(size(A,1))<=100
+        edge_range = prctile(abs(edges),[75 99]);
+        min_edge = edge_range(1); 
+        max_edge = edge_range(2);     
+        thresholds = fliplr(round(linspace(min_edge,max_edge,50),2));
+    else
+        edge_range = prctile(abs(edges),[85 99]);
+        min_edge = edge_range(1); 
+        max_edge = edge_range(2);     
+        thresholds = fliplr(round(linspace(min_edge,max_edge,50),2));
+    end
     
     switch nargin 
     case 3
@@ -52,6 +59,12 @@ function [metrics clique_adj clique_array] = persistent_conductance(A,Ci,varargi
     otherwise
         loaddata = false;
         savefilename = 'persistent_conductance';
+    end
+    
+    if(~issymmetric(A))
+        warning('Input matrix A is not symmetric.')
+        disp('Symmetricizing as A = (A + At)/2');
+        A = (A + A')/2;
     end
     
     use_clique_top = true;
